@@ -18,22 +18,42 @@
  */
 package org.apache.ranger.services.kudu;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.ranger.plugin.service.RangerBaseService;
 import org.apache.ranger.plugin.service.ResourceLookupContext;
+import org.apache.ranger.services.kudu.client.KuduResourceMgr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RangerService for Apache Kudu.
  */
 public class RangerServiceKudu extends RangerBaseService {
 
+    private static final Log LOG = LogFactory.getLog(RangerServiceKudu.class);
     @Override
-    public HashMap<String, Object> validateConfig() throws Exception {
+    public Map<String, Object> validateConfig() throws Exception {
       // TODO: implement configure validation for Kudu policies.
-      return new HashMap<>();
+      Map<String,Object> ret = new HashMap<>();
+      if(LOG.isDebugEnabled()) {
+        LOG.debug("<== RangerServiceKudu.validateConfig() Service: (" + service + " )");
+      }
+      if ( configs != null) {
+        try  {
+          ret = KuduResourceMgr.testConnection(service.getName(), service.getConfigs());
+        } catch (Exception e) {
+          LOG.error("<== RangerServiceKudu.validateConfig() Error:" + e);
+          throw e;
+        }
+      }
+      if(LOG.isDebugEnabled()) {
+        LOG.debug("<== RangerServiceKudu.validateConfig() Response : (" + ret + " )");
+      }
+      return ret;
     }
 
     @Override
